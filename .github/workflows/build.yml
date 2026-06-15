@@ -1,0 +1,37 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Godot
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/3.6.2-stable/Godot_v3.6.2-stable_osx.universal.zip
+          unzip Godot_v3.6.2-stable_osx.universal.zip
+          mv "Godot.app/Contents/MacOS/Godot" godot
+          chmod +x godot
+
+      - name: Download iOS export templates
+        run: |
+          wget https://github.com/godotengine/godot/releases/download/3.6.2-stable/Godot_v3.6.2-stable_export_templates.tpz
+          mkdir -p ~/Library/Application\ Support/Godot/export_templates/3.6.2.stable
+          unzip Godot_v3.6.2-stable_export_templates.tpz -d /tmp/templates
+          mv /tmp/templates/templates/* ~/Library/Application\ Support/Godot/export_templates/3.6.2.stable/
+
+      - name: Export Xcode project
+        run: |
+          mkdir -p build
+          ./godot --path Widget/ --export "iOS" build/Widget.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v3
+        with:
+          name: widget-ipa
+          path: build/Widget.ipa
