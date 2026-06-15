@@ -2,14 +2,14 @@ name: Build iOS IPA
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
-  build:
+  build_ios:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download Godot
         run: |
@@ -28,10 +28,10 @@ jobs:
       - name: Export Xcode project
         run: |
           mkdir -p build
-          ./godot --path Widget/ --export "iOS" build/Widget.ipa
+          ./godot --path . --export "Widgetforios" build/Widget.ipa
 
       - name: Upload IPA
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: widget-ipa
           path: build/Widget.ipa
